@@ -17,7 +17,6 @@ def main():
             if len(filename) != 0:
                 op = OPSWATSCAN(op_api, filename.strip())
                 op.scan_file()
-                op.test_api()
             else:
                 print("Invalid file name input.\n")
         else:
