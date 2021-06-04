@@ -1,0 +1,57 @@
+cd /usr/rep/src 
+sudo make -j2 && sudo make install && sudo make modules_install
+scp reptilian@192.168.200.129:/usr/rep/src/reptilian-kernel/lab2.diff lab2.diff
+scp lab2.diff reptilian@192.168.200.129:/usr/rep/src/reptilian-kernel/lab2.diff
+dmesg | grep "God"
+gcc -o name name.c
+cc -c process_log.c
+ar cr libprocess_log.a process_log.o
+gcc -o getlevel getlevel.c -L ./process_log -lprocess_log
+./getlevel
+gcc -o setlevel setlevel.c -L ./process_log -lprocess_log
+sudo ./setlevel 2
+cc -o send_log send_log.c -L ./process_log -lprocess_log
+sudo ./setlevel 0
+./send_log 0 "God is good" : should pass
+./send_log 4 "God is good" : should fail
+./send_log 0 "God is good"
+./send_log 0 "God is good"
+gcc -o file_name file_name.c -L./process_log -lprocess_log
+
+patch file:
+git add -u
+git add '*.c' '*.h' '*Makefile*' '*.tbl'
+git diff remotes/origin/os-latest > lab3.diff
+scp reptilian@192.168.200.129:/usr/rep/src/reptilian-kernel/lab3.diff lab3.diff
+scp -r reptilian@192.168.200.129:/usr/rep/src/process_log
+
+repker->linux
+
+g++ -o harness_test harness_test.cpp
+chmod a+x harness_test
+
+g++ -std=c++17 -o harness_test harness_test.cpp -L./process_log -lprocess_log && ./harness_test
+g++ -std=c++17 -o library_test library_test.cpp -L./process_log -lprocess_log &&./library_test
+
+tar file:
+tar -czvf process_log.tar.gz process_log
+unpack: tar zxvf process_log.tar.gz
+
+heartbeat:
+chmod +x heartbeat-p1.sh
+./heartbeat-p1.sh
+
+lab4:
+g++ -std=c++17 -pthread -o main main.cpp
+g++ -std=c++17 -o basic_pipe basic_pipe.cpp &&
+g++ -std=c++17 -o mensah_part2 mensah_part2.cpp &&
+g++ -std=c++17 -o mensah_part3 mensah_part3.cpp
+
+./part1.o | ./basic_pipe
+mkfifo my_pipe_file
+./part1.o > my_pipe_file
+./mensah_part2 my_pipe_file
+./mensah_part3 42 15 8 16 23
+
+
+
