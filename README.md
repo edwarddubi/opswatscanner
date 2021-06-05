@@ -1,6 +1,6 @@
 # opswatscanner
 
-This is a simple program built to scan a file against the [Metadefender Opswat API](metadefender.opswat.com).
+This is a simple program built to scan a file against the [Metadefender Opswat API](https://metadefender.opswat.com).
 
 ## API
 
