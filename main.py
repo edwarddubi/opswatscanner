@@ -23,5 +23,5 @@ def main():
             print("Invalid command.\n")
         
         
-
-main()
+if __name__ == "__main__":
+    main()

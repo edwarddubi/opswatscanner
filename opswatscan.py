@@ -1,18 +1,29 @@
 import requests
 import hashlib
+import time
 
 
 class OPSWATSCAN:
     
     def __init__(self) -> None:
-        pass
+        self.__api_key = ""
+        self.__filename = ""
+        self.__endpoint = "https://api.metadefender.com/v4/file"
+        self.__hashlink = "https://api.metadefender.com/v4/hash"
 
     def __init__(self, api_key, filename) -> None:
         self.__api_key = api_key
         self.__filename = filename
         self.__endpoint = "https://api.metadefender.com/v4/file"
-        self.__hashlink = "https://api.metadefender.com/v4/hash/"
+        self.__hashlink = "https://api.metadefender.com/v4/hash"
 
+
+    #set a desire api
+    def set_api_key(self, api_key):
+        self.__api_key = api_key
+
+    def set_filename(self, filename):
+        self.__filename = filename
     
     def read_file(self):
         f=None
@@ -22,15 +33,6 @@ class OPSWATSCAN:
         except FileNotFoundError as e:
             print("File does not exist.\n")
         return f,False
-
-    def test_api(self):
-        link = "https://api.metadefender.com/v4/hash/66DA1A91E1ED5D59BECFAD85F53C05F9"
-        params = {
-            "apikey":self.__api_key
-        }
-
-        res = requests.post(url=link, params=params)
-        print(res.json())
 
     def generate_hash_file(self, file):
         hash = hashlib.sha1()
@@ -42,18 +44,41 @@ class OPSWATSCAN:
 
     def verify_file_existence(self, file):
         file_h = self.generate_hash_file(file)
-        link = self.__hashlink+str(file_h)
+        link = self.__hashlink+"/"+str(file_h)
         header = {
             "Content-Type": "application/json",
             "apikey":self.__api_key,
         }
         res = requests.get(url=link, headers=header)
         r = res.json()
-        print(r)
-        if r["data_id"]:
-            return True
-        else:
-            return False
+        #print(r)
+        try:
+            if r["data_id"]:
+                #print("File was found in the Cloud!")
+                scan_details = r["scan_results"]["scan_details"]
+                msg="filename: {0}\noverall_status: Clean".format(self.__filename)
+                print(msg)
+                for e,d in scan_details.items():
+                    print("engine: {0}".format(e))
+                    self.display_engine(d)
+                    #print("\n")
+
+                return True
+        except KeyError:
+            pass
+        return False
+
+    def display_engine(self, details):
+        if details["threat_found"] == '':
+            details["threat_found"] ="None"
+
+        #msg = "".format()
+        
+        for i,j in details.items():
+            if i == "scan_result_i":
+                i = "scan_result"
+            print("{0}: {1}".format(i,j))
+
 
     def post_req(self, file):
         link = self.__endpoint
@@ -64,19 +89,38 @@ class OPSWATSCAN:
                 "apikey":self.__api_key,
                 "filename":self.__filename
             }
-        params = {}
+        #params = {}
         #params = json.dumps(params)
 
         res = requests.post(url=link, data=file, headers=header)
-        print(res.json())
+        r=res.json()
+        id=None
+        try:
+            id = r["data_id"]
+        except KeyError:
+            pass
+        
+        if id:
+            res = self.get_req(id)
+            while res["scan_results"] == None:
+                res = self.get_req(id)
+                time.sleep(2)
+            scan_details = res["scan_results"]["scan_details"]
+            msg="filename: {0}\noverall_status: Clean".format(self.__filename)
+            print(msg)
+            for e,d in scan_details.items():
+                print("engine: {0}".format(e))
+                self.display_engine(d)
 
 
-    def get_req(self):
-        params = {
-            "apikey":self.api_key
+    def get_req(self, id):
+        link = self.__endpoint+"/"+str(id)
+        header = {
+            "Content-Type": "application/json",
+            "apikey":self.__api_key,
         }
-        res = requests.post(url=self.__endpoint, params=params)
-        print(res.json())
+        res = requests.get(url=link, headers=header)
+        return res.json()
 
 
     def scan_file(self):
@@ -85,8 +129,6 @@ class OPSWATSCAN:
             e=self.verify_file_existence(f)
             if not e:
                 self.post_req(f)
-            else:
-                print("File has already being uploaded and scanned.")
         
         f.close()
             
