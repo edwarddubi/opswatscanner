@@ -52,6 +52,7 @@ mkfifo my_pipe_file
 ./part1.o > my_pipe_file
 ./mensah_part2 my_pipe_file
 ./mensah_part3 42 15 8 16 23
+akjkjkjakjashjshsajsffdffdf
 
 
 
